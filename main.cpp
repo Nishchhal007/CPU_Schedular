@@ -58,10 +58,55 @@ class Simulator{
 
 };
 
+//First Come First Serve Algorithm
+void Fcfs()
+{
+    cout<<"Enter 1 for First Come First Serve (FCFS) "<<endl;
+    
+}
+void round_robin()
+{
+    cout<<"Enter 2 for Round Robin Scheduling "<<endl;
+
+}
+void cfs()
+{
+    cout<<"Enter 3 for  Completely Fair Scheduler (CFS) "<<endl;
+
+}
+
+void menu()
+{
+    cout<<"\n**********************************************************\n"<<endl;
+    cout<<"Enter 1 for First Come First Serve (FCFS) "<<endl;
+    cout<<"Enter 2 for Round Robin Scheduling "<<endl;
+    cout<<"Enter 3 for  Completely Fair Scheduler (CFS) "<<endl;
+    cout<<"\n**********************************************************\n"<<endl;
+    int choice;
+    cin>>choice;
+    switch (choice)
+    {
+    case 1:
+        Fcfs();
+        break;
+    case 2:
+        round_robin();
+        break;
+    case 3:
+        cfs();
+        break;
+    
+    default:
+        cout<<"\nEnter a valid choice"<<endl;
+        menu();
+        break;
+    }
+}
 
 int main()
 {
     process p;
+    menu();
 
     
     return 0;
