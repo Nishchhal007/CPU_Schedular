@@ -6,9 +6,10 @@
 #include <algorithm>
 #include <utility>
 
+#define n 7
+
 using namespace std;
 
-Process a[];
 
 
 // Class process - which will assign values to the data members and print them
@@ -70,29 +71,32 @@ public:
     int Priority;
 };
 
+Process a[n];
+
 class process_creator
 {
 
 public:
     // Function for Assigning Random Time for arrival_time,Brust_time
 
-    void Assign(int n);
+    void Assign(int x);
+    friend void Fcfs(Process a[n]);
 };
 
-void process_creator ::Assign(int n)
+void process_creator ::Assign(int x)
 {
     Process a[n];
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < x; i++)
     {
         a[i].arrival_time = rand() % 10;
         a[i].burst_time = rand() % 10+1;
     }
 
-//     // Print the processes
-//     for (int i = 0; i < n; i++)
-//     {
-//         cout << "Process " << i + 1 << ": arrival time = " << a[i].arrival_time << ", burst time = " << a[i].burst_time << endl;
-//     }
+    // Print the processes
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Process " << i + 1 << ": arrival time = " << a[i].arrival_time << ", burst time = " << a[i].burst_time << endl;
+    }
 }
 
 // class Schedular - This will implement the scheduling algorithms.
@@ -113,9 +117,25 @@ class Simulator
 };
 
 // First Come First Serve Algorithm
-void Fcfs()
+void Fcfs(Process a[n])
 {
-   
+
+  // Define a vector to store the indices of the elements of the array
+  vector<pair<int, int>> indices;
+  for (int i = 0; i < n; i++) {
+    indices.emplace_back(a[i].arrival_time, i);
+  }
+
+  // Sort the vector of indices based on the value of the elements of the array
+  sort(indices.begin(), indices.end(), [](auto a, auto b) {
+    return a.first < b.first;
+  });
+
+  // Print the sorted array and the indices of the elements
+  for (const auto& [value, index] : indices) {
+    cout << value << ' ' << index << '\n';
+  }
+
 
 }
 void round_robin()
@@ -141,7 +161,7 @@ void menu()
     switch (choice)
     {
     case 1:
-        Fcfs();
+        Fcfs(a[]);
         break;
     case 2:
         round_robin();
@@ -159,14 +179,10 @@ void menu()
 
 int main()
 {
-
     process p;
     menu();
-    int num;
-    cout<<"Enter the No. of Processes : ";
-    cin>>num;
     process_creator pc;
-    pc.Assign(num);
+    pc.Assign(n);
 
     return 0;
 }
