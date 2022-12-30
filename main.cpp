@@ -29,13 +29,6 @@ public:
         turn_around_time = 0;
         waiting_time = 0;
         response_time = 0;
-        cout << "Process ID : " << pid << endl;
-        cout << "Arrival Time : " << arr_time << endl;
-        cout << "Brust Time : " << brust_time << endl;
-        cout << "Completion Time : " << completion_time << endl;
-        cout << "Turn Around Time : " << turn_around_time << endl;
-        cout << "Waiting Time : " << waiting_time << endl;
-        cout << "Response Time : " << response_time << endl;
     }
 
     // Constructor overloaded for assigning Values
@@ -58,6 +51,7 @@ public:
     //     cout<<"Response Time : "<<response_time<<endl;
 
     // }
+    friend void print_details();
 };
 
 // Class process_creator - which will assign a random arrival time and burst time to each process.
@@ -133,7 +127,7 @@ void menu()
          << endl;
     cout << "Enter 1 for First Come First Serve (FCFS) " << endl;
     cout << "Enter 2 for Round Robin Scheduling " << endl;
-    cout << "Enter 3 for  Completely Fair Scheduler (CFS) " << endl;
+    cout << "Enter 3 for Completely Fair Scheduler (CFS) " << endl;
     cout << "\n**********************************************************\n"
          << endl;
     int choice;
@@ -160,13 +154,24 @@ void menu()
 int main()
 {
 
-    process p;
     menu();
-    int num;
-    cout<<"Enter the No. of Processes : ";
-    cin>>num;
-    process_creator pc;
-    pc.Assign(num);
+    // int num;
+    // cout<<"Enter the No. of Processes : ";
+    // cin>>num;
+    // process_creator pc;
+    // pc.Assign(num);
 
     return 0;
 }
+
+
+// void print_details()
+// {
+//         cout << "Process ID : " << pid << endl;
+//         cout << "Arrival Time : " << arr_time << endl;
+//         cout << "Brust Time : " << brust_time << endl;
+//         cout << "Completion Time : " << completion_time << endl;
+//         cout << "Turn Around Time : " << turn_around_time << endl;
+//         cout << "Waiting Time : " << waiting_time << endl;
+//         cout << "Response Time : " << response_time << endl;
+// }
