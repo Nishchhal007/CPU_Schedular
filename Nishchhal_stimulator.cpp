@@ -8,6 +8,8 @@
 
 using namespace std;
 
+void menu();
+
 // Class process - which will assign values to the data members and print them
 
 class process
@@ -27,27 +29,6 @@ public:
         waiting_time = 0;
         response_time = 0;
     }
-
-    // Constructor overloaded for assigning Values
-
-    // process(int id = 0,int at= 0,int bt= 0,int ct= 0,int tat= 0,int wt= 0,int rt= 0)
-    // {
-    //     pid = id;
-    //     arr_time = at;
-    //     brust_time = bt;
-    //     completion_time = ct;
-    //     turn_around_time = tat;
-    //     waiting_time = wt;
-    //     response_time = rt;
-    //     cout<<"Process ID : "<<pid<<endl;
-    //     cout<<"Arrival Time : "<<arr_time<<endl;
-    //     cout<<"Brust Time : "<<brust_time<<endl;
-    //     cout<<"Completion Time : "<<completion_time<<endl;
-    //     cout<<"Turn Around Time : "<<turn_around_time<<endl;
-    //     cout<<"Waiting Time : "<<waiting_time<<endl;
-    //     cout<<"Response Time : "<<response_time<<endl;
-
-    // }
     void print_details();
     void IAB_init(int id, int at, int bt);
 };
@@ -61,6 +42,7 @@ void process::IAB_init(int id, int at, int bt)
 }
 void process::print_details()
 {
+        cout<<"\n";
         cout<<"Process ID : "<<pid<<endl;
         cout<<"Arrival Time : "<<arr_time<<endl;
         cout<<"Brust Time : "<<brust_time<<endl;
@@ -68,11 +50,12 @@ void process::print_details()
         cout<<"Turn Around Time : "<<turn_around_time<<endl;
         cout<<"Waiting Time : "<<waiting_time<<endl;
         cout<<"Response Time : "<<response_time<<endl;
+        cout<<"\n";
 }
 
 
-
 // Class process_creator - which will assign a random arrival time and burst time to each process.
+
 
 class process_creator
 {
@@ -91,8 +74,13 @@ void process_creator ::Assign(int n)
     {
         at = rand() % 10;
         bt = rand() % 10 + 1;
-        a[i].IAB_init(i,at,bt);    
+        a[i].IAB_init(i,at,bt);
     }
+    for (int i = 0; i < n; i++)
+    {
+        a[i].print_details();
+    }
+    
 }
 
 // class Schedular - This will implement the scheduling algorithms.
@@ -105,14 +93,6 @@ public:
     friend void round_robin();
     friend void cfs();
 };
-
-// class Simulator - This class will start the simulation.
-
-class Simulator
-{
-};
-
-// First Come First Serve Algorithm
 void Fcfs()
 {
 }
@@ -123,6 +103,20 @@ void round_robin()
 void cfs()
 {
     cout << "Enter 3 for  Completely Fair Scheduler (CFS) " << endl;
+}
+
+int main()
+{
+
+    menu();
+    int num;
+    cout << "Enter the No. of Processes : ";
+    cin >> num;
+    process_creator new_process;
+    new_process.Assign(num);
+    // print_details();
+
+    return 0;
 }
 
 void menu()
@@ -155,27 +149,4 @@ void menu()
     }
 }
 
-int main()
-{
 
-    // menu();
-    int num;
-    cout << "Enter the No. of Processes : ";
-    cin >> num;
-    process_creator p;
-    p.Assign(num);
-    // pc.Assign(num);
-
-    return 0;
-}
-
-// void print_details()
-// {
-//         cout << "Process ID : " << pid << endl;
-//         cout << "Arrival Time : " << arr_time << endl;
-//         cout << "Brust Time : " << brust_time << endl;
-//         cout << "Completion Time : " << completion_time << endl;
-//         cout << "Turn Around Time : " << turn_around_time << endl;
-//         cout << "Waiting Time : " << waiting_time << endl;
-//         cout << "Response Time : " << response_time << endl;
-// }
