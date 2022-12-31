@@ -1,6 +1,6 @@
 # OS+OOPS Assignment - CPU Schdeular
 
-# Nishchhal Pachouri
+Code by Nishchhal Pachouri
 
 This assignment is a mix of Operating Systems and Object Oriented Programming concepts. In this
 assignment, i will be designing a simulator to simulate the behavior of a CPU scheduler, i.e.,
@@ -35,7 +35,7 @@ program, the user should be asked the choice of scheduling algorithm. The CFS sc
 implemented using Red Black Tree. So, in case of CFS, ready queue will be implemented using Red
 Black Tree.
 
-# To understand the CFS Scheduling following youtube lecture can be followed : https://www.youtube.com/watch?v=scfDOof9pww
+To understand the CFS Scheduling following youtube lecture can be followed : https://www.youtube.com/watch?v=scfDOof9pww
 
 # 4.Simulator
 
@@ -47,13 +47,15 @@ required values.
 # The class will also print the output in the following ways:
 
 
-# (a) A file named as processes.txt will be created which will contain a table as follows.
+(a) A file named as processes.txt will be created which will contain a table as follows.
 
 The file handling coding can be done using C programming.
 
+![image](https://user-images.githubusercontent.com/84848073/210124511-2cd71f8f-63cc-4b10-ad13-daa71cc0dfa9.png)
+
 Here, the number of rows will depend on the number of processes.
 
-# (b) A file named as status.txt which will print a table.
+(b) A file named as status.txt which will print a table.
 
 For each millisecond, the file will show the
 process id of the processes arrived in the system, running by the processor and exiting from the
@@ -62,6 +64,7 @@ running, i.e., the number of milliseconds in the simulation time. However, if in
 millisecond, no process arrived or exited and the process being run by the processor is the same as
 that of previous millisecond then the current millisecond can be skipped from printing in the table.
 
+![image](https://user-images.githubusercontent.com/84848073/210124525-b1df576f-b30c-4f40-916a-dbaa71c2badd.png)
 
 The main() function should take the following input from the user: (i) Simulation time (ii) Name of 
 scheduling algorithm (iii) Time quantum in case of Round Robin.
