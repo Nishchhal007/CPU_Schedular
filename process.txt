@@ -1,0 +1,1 @@
+Process Id		Arrival Time		Burst Time		Completion Time		Turn Around Time		Waiting Time		Response Time
