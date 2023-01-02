@@ -9,61 +9,79 @@
 
 using namespace std;
 
-#define n1 100
+#define MAX_SIZE 999999
 
-// Queue Functions
+#define N 10
+
+// Class Queue and its Functions
 
 class Queue
 {
     int *arr;
     int front;
     int back;
+    int size;
 
 public:
     Queue()
     {
-        arr = new int[n1];
-        front = -1;
+        arr = new int[MAX_SIZE];
+        front = 0;
         back = -1;
-    }
+        size = 0;
+    };
     void enqueue(int x);
     void dequeue();
     int peak();
+    int back_ele();
+    int Size();
     bool isEmpty();
 };
 
 void Queue ::enqueue(int x)
 {
-    if (back == n1 - 1)
+    if (size == MAX_SIZE)
     {
-        cout << "Queue Overflow" << endl;
+        cout << "Error: Queue is full" << endl;
+        return;
     }
-    back++;
+    back = (back + 1) % MAX_SIZE;
     arr[back] = x;
-    if (front == -1)
-    {
-        front++;
-        arr[front] = x;
-    }
+    size++;
 }
 void Queue ::dequeue()
 {
-    if (front == -1 || front > back)
+    if (size == 0)
     {
-        cout << "No element in Queue" << endl;
+        cout << "Error: Queue is empty" << endl;
         return;
     }
-    front++;
+    front = (front + 1) % MAX_SIZE;
+    size--;
 }
 int Queue ::peak()
 {
 
-    if (front == -1 || front > back)
+    if (size == 0)
     {
-        cout << "No Element in Queue";
+        cout << "Error: Queue is empty" << endl;
         return -1;
     }
     return arr[front];
+}
+
+int Queue ::back_ele()
+{
+    if (size == 0)
+    {
+        cout << "Error: Queue is empty" << endl;
+        return -1;
+    }
+    return arr[back];
+}
+int Queue::Size()
+{
+    return size;
 }
 
 bool Queue ::isEmpty()
@@ -84,6 +102,7 @@ void menu();
 
 void initilize_header_to_status_file();
 void initilize_header_to_process_file();
+void writeDataToStatusFile(int pid, const char status[], int t);
 
 // Class process - which will assign values to the data members and print them
 
@@ -109,7 +128,10 @@ public:
     void response(int t);
     void completion(float completion_time);
     void IAB_init(int id, int at, int bt);
+    friend class process_creator;
     friend class minHeap;
+    friend class Queue;
+    friend class Schedular_FCFS;
 };
 
 void process::IAB_init(int id, int at, int bt)
@@ -149,22 +171,23 @@ class process_creator
 {
     int at;
     int bt;
+    process *a = new process[N];
 
 public:
     // Function for Assigning Random Time for arrival_time,Brust_time
-    void Assign(int n);
+    void Assign();
+    friend class Schedular_FCFS;
 };
 
-void process_creator ::Assign(int n)
+void process_creator :: Assign()
 {
-    process *a = new process[n];
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < N; i++)
     {
         at = rand() % 10;
         bt = 1 + rand() % 10;
         a[i].IAB_init(i, at, bt);
     }
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < N; i++)
     {
         a[i].print_details();
     }
@@ -175,9 +198,8 @@ void process_creator ::Assign(int n)
 class minHeap
 {
 private:
-    
     process *a = new process[10];
-    
+
     int left(int i)
     {
         return 2 * i + 1;
@@ -255,7 +277,7 @@ void minHeap::pop()
 
 class Schedular
 {
-    process *ready_queue[999999];
+    process ready_queue[MAX_SIZE];
 
 public:
     void schedule_processes(process_creator &PC, int simulation_time, int time_quantum, string sAlgorithm)
@@ -265,7 +287,7 @@ public:
         // string ta = "CFS";
         if (sAlgorithm == "FCFS")
         {
-            // Schedular_FCFS Fcfs(PC);
+            Schedular_FCFS Fcfs();
             // for (int i = 1; i <= simulationTime; i++)
             // {
             //     cout << "\nIteration is " << i << endl;
@@ -286,6 +308,41 @@ public:
 
 class Schedular_FCFS
 {
+    Queue ready_queue;
+
+public:
+    void check_process_arrival(process_creator &PC, int t)
+    {
+        for (int i = 0; i < N; i++)
+        {
+            if (PC.a[i].arr_time == t)
+            {
+                ready_queue.enqueue(PC.a[i]);
+                writeDataToStatusFile(PC.a[i].pid, "Arrived", t);
+                cout << "t and AT Matched" << PC.a[i].arr_time << endl;
+            }
+        }
+    }
+
+    void FCFS(process_creator &PC, int t)
+    {
+        check_process_arrival(PC, t);
+        if (ready_queue.isEmpty() == false)
+        {
+                process P = ready_queue.peak();
+        //     if (P.Data.burstTime != 0)
+        //     {
+        //         writeStatusFile("Running", t);
+        //         P.Data.burstTime -= 1;
+        //         if (P.Data.responseTime == -1)
+        //         {
+        //             P.Data.responseTime = t - P.Data.arrivalTime;
+        //         }
+        //         ready_queue.pop();
+        //         ready_queue.push(Process(P.Data));
+        //     }
+        }
+    }
 };
 
 class Simulator
@@ -297,18 +354,18 @@ private:
     string sAlgorithm;
 
 public:
-    Simulator(int sT, int tQ, int n, string sA)
+    Simulator(int sT, int tQ, string sA)
     {
         simulation_time = sT;
         time_quantum = tQ;
-        num_of_processes = n;
+        num_of_processes = N;
         sAlgorithm = sA;
     }
     void init_simulation()
     {
         // process_creator PC(num_of_processes);
         process_creator pc;
-        pc.Assign(num_of_processes);
+        pc.Assign();
         Schedular s;
         s.schedule_processes(pc, simulation_time, time_quantum, sAlgorithm);
     }
@@ -319,9 +376,7 @@ int main()
 {
     starter();
 
-    cout << "Enter the No. of Processes : ";
-    int num;
-    cin >> num;
+
     int time_quantum;
     int simulation_time;
     cout << "Enter stimulation time (in secs) : ";
@@ -345,7 +400,7 @@ int main()
 
     // Start Simulation
 
-    Simulator Simulation(simulation_time, time_quantum, num, salgorithm);
+    Simulator Simulation(simulation_time, time_quantum, salgorithm);
     Simulation.init_simulation();
 
     return 0;
@@ -379,13 +434,26 @@ void initilize_header_to_process_file()
     fclose(fp);
 }
 
+void writeDataToStatusFile(int pid, const char status[], int t)
+{
+    FILE *fp;
+    fp = fopen("./Files/status.txt", "a");
+    if (fp == NULL)
+    {
+        printf("Error ! while updating Status File");
+        exit(1);
+    }
+    fprintf(fp, "%013d\t\t%010d\t\t%s\n", t, pid, status);
+    fclose(fp);
+}
+
 void menu()
 {
     cout << "\n**********************************************************\n"
          << endl;
-    cout << "FCFS for First Come First Serve (FCFS) " << endl;
-    cout << "RR for Round Robin Scheduling " << endl;
-    cout << "CFS for Completely Fair Scheduler (CFS) " << endl;
+    cout << "Enter 'FCFS' for First Come First Serve (FCFS) " << endl;
+    cout << "Enter 'RR' for Round Robin Scheduling " << endl;
+    cout << "Enter 'CFS' for Completely Fair Scheduler (CFS) " << endl;
     cout << "\n**********************************************************\n"
          << endl;
 }
