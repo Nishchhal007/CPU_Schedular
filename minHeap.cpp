@@ -45,35 +45,32 @@ int MinHeap::size() {
   return heap.size();
 }
 
-void MinHeap::heapify_up(int index) {
-  while (index > 0) {
-    int parent = (index - 1) / 2;
-    if (heap[parent] > heap[index]) {
-      swap(heap[parent], heap[index]);
-      index = parent;
-    } else {
-      break;
-    }
-  }
-}
+void min_heapify(int i)
+    {
+        int l = left(i);
+        int r = right(i);
+        int smallest = i;
 
-void MinHeap::heapify_down(int index) {
-  int child = index * 2 + 1;
-  while (child < heap.size()) {
-    int min_child = child;
-    int right_child = child + 1;
-    if (right_child < heap.size() && heap[right_child] < heap[min_child]) {
-      min_child = right_child;
+        if (l < arr->size() && arr->at(l).arr_time < arr->at(smallest).arr_time)
+        {
+            smallest = l;
+        }
+        else
+        {
+            smallest = i;
+        }
+
+        if (r < arr->size() && arr->at(r).arr_time < arr->at(smallest).arr_time)
+        {
+            smallest = r;
+        }
+
+        if (smallest != i)
+        {
+            swap(arr->at(smallest), arr->at(i));
+            min_heapify(smallest);
+        }
     }
-    if (heap[index] > heap[min_child]) {
-      swap(heap[index], heap[min_child]);
-      index = min_child;
-      child = index * 2 + 1;
-    } else {
-      break;
-    }
-  }
-}
 
 int main() {
   MinHeap heap(10);
