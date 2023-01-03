@@ -66,5 +66,9 @@ that of previous millisecond then the current millisecond can be skipped from pr
 
 ![image](https://user-images.githubusercontent.com/84848073/210124525-b1df576f-b30c-4f40-916a-dbaa71c2badd.png)
 
-The main() function should take the following input from the user: (i) Simulation time (ii) Name of 
-scheduling algorithm (iii) Time quantum in case of Round Robin.
+
+# The main() function should take the following input from the user :
+
+(i) Simulation time.
+(ii) Name of scheduling algorithm.
+(iii) Time quantum in case of Round Robin.

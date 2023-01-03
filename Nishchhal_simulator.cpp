@@ -104,66 +104,84 @@ void initilize_header_to_status_file();
 void initilize_header_to_process_file();
 void writeDataToStatusFile(int pid, const char status[], int t);
 
-// Class process - which will assign values to the data members and print them
-
-class process
+class process_details
 {
-    int pid, arr_time, brust_time, completion_time, turn_around_time, waiting_time, response_time;
+
+    int pid;
+    int arr_time;
+    int brust_time;
+    int completion_time;
+    int turn_around_time;
+    int waiting_time;
+    int response_time;
+    int completion_time;
 
 public:
-    // Constructor to initilize values to these data members
-
-    process()
-    {
-        pid = 0;
-        arr_time = 0;
-        brust_time = 0;
-        completion_time = 0;
-        turn_around_time = 0;
-        waiting_time = 0;
-        response_time = 0;
-        completion_time = 0;
-    }
-    void print_details();
-    void response(int t);
-    void completion(float completion_time);
-    void IAB_init(int id, int at, int bt);
+    friend class process;
     friend class process_creator;
-    friend class minHeap;
-    friend class Queue;
-    friend class Schedular_FCFS;
 };
 
-void process::IAB_init(int id, int at, int bt)
+// Class process - which will assign values to the data members and print them
+
+// class process
+// {
+//     int pid, arr_time, brust_time, completion_time, turn_around_time, waiting_time, response_time;
+
+// public:
+//     // Constructor to initilize values to these data members
+
+//     process()
+//     {
+//         pid = 0;
+//         arr_time = 0;
+//         brust_time = 0;
+//         completion_time = 0;
+//         turn_around_time = 0;
+//         waiting_time = 0;
+//         response_time = 0;
+//         completion_time = 0;
+//     }
+//     void print_details();
+//     void response(int t);
+//     void completion(float completion_time);
+//     void IAB_init(int id, int at, int bt);
+//     friend class process_creator;
+//     friend class minHeap;
+//     friend class Queue;
+//     friend class Schedular_FCFS;
+// };
+
+
+// void process::IAB_init(int id, int at, int bt)
 {
     pid = id;
     arr_time = at;
     brust_time = bt;
 }
-void process::completion(float completion_time = 0)
+// void process::completion(float completion_time = 0)
 {
     this->completion_time = completion_time;
     turn_around_time = completion_time - arr_time;
     waiting_time = turn_around_time - brust_time;
 }
 
-void process::response(int t)
+// void process::response(int t)
 {
     if (response_time == -1)
         response_time = t - arr_time;
 }
-void process::print_details()
-{
-    cout << "\n";
-    cout << "Process ID : " << pid << endl;
-    cout << "Arrival Time : " << arr_time << endl;
-    cout << "Brust Time : " << brust_time << endl;
-    cout << "Completion Time : " << completion_time << endl;
-    cout << "Turn Around Time : " << turn_around_time << endl;
-    cout << "Waiting Time : " << waiting_time << endl;
-    cout << "Response Time : " << response_time << endl;
-    cout << "\n";
-}
+// void process::print_details()
+// {
+//     cout << "\n";
+//     cout << "Process ID : " << pid << endl;
+//     cout << "Arrival Time : " << arr_time << endl;
+//     cout << "Brust Time : " << brust_time << endl;
+//     cout << "Completion Time : " << completion_time << endl;
+//     cout << "Turn Around Time : " << turn_around_time << endl;
+//     cout << "Waiting Time : " << waiting_time << endl;
+//     cout << "Response Time : " << response_time << endl;
+//     cout << "\n";
+// }
 
 // Class process_creator - which will assign a random arrival time and burst time to each process.
 
@@ -171,7 +189,7 @@ class process_creator
 {
     int at;
     int bt;
-    process *a = new process[N];
+    // process *a = new process[N];
 
 public:
     // Function for Assigning Random Time for arrival_time,Brust_time
@@ -179,17 +197,17 @@ public:
     friend class Schedular_FCFS;
 };
 
-void process_creator :: Assign()
+void process_creator ::Assign()
 {
     for (int i = 0; i < N; i++)
     {
         at = rand() % 10;
         bt = 1 + rand() % 10;
-        a[i].IAB_init(i, at, bt);
+        // a[i].IAB_init(i, at, bt);
     }
     for (int i = 0; i < N; i++)
     {
-        a[i].print_details();
+        // a[i].print_details();
     }
 }
 
@@ -260,7 +278,7 @@ void minHeap::build_min_heap()
     }
 }
 
-process minHeap::get_min_ele()
+// process minHeap::get_min_ele()
 {
     return a[0];
 }
@@ -277,7 +295,7 @@ void minHeap::pop()
 
 class Schedular
 {
-    process ready_queue[MAX_SIZE];
+    // process ready_queue[MAX_SIZE];
 
 public:
     void schedule_processes(process_creator &PC, int simulation_time, int time_quantum, string sAlgorithm)
@@ -317,7 +335,7 @@ public:
         {
             if (PC.a[i].arr_time == t)
             {
-                ready_queue.enqueue(PC.a[i]);
+                // ready_queue.enqueue(PC.a[i]);
                 writeDataToStatusFile(PC.a[i].pid, "Arrived", t);
                 cout << "t and AT Matched" << PC.a[i].arr_time << endl;
             }
@@ -329,18 +347,18 @@ public:
         check_process_arrival(PC, t);
         if (ready_queue.isEmpty() == false)
         {
-                process P = ready_queue.peak();
-        //     if (P.Data.burstTime != 0)
-        //     {
-        //         writeStatusFile("Running", t);
-        //         P.Data.burstTime -= 1;
-        //         if (P.Data.responseTime == -1)
-        //         {
-        //             P.Data.responseTime = t - P.Data.arrivalTime;
-        //         }
-        //         ready_queue.pop();
-        //         ready_queue.push(Process(P.Data));
-        //     }
+            // process P = ready_queue.peak();
+            //     if (P.Data.burstTime != 0)
+            //     {
+            //         writeStatusFile("Running", t);
+            //         P.Data.burstTime -= 1;
+            //         if (P.Data.responseTime == -1)
+            //         {
+            //             P.Data.responseTime = t - P.Data.arrivalTime;
+            //         }
+            //         ready_queue.pop();
+            //         ready_queue.push(Process(P.Data));
+            //     }
         }
     }
 };
@@ -375,7 +393,6 @@ public:
 int main()
 {
     starter();
-
 
     int time_quantum;
     int simulation_time;
