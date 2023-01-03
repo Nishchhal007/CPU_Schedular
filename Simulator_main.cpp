@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
-#include<queue>
+#include <queue>
 #include <algorithm>
 #include <utility>
 #include <fstream>
@@ -17,7 +17,6 @@ using namespace std;
 
 void starter();
 void menu();
-
 
 // // Class Queue and its Functions
 
@@ -106,20 +105,22 @@ class process_details
 public:
     friend void write_update_to_status_file(process_details PD, const char status[], int t);
     friend void write_update_to_process_file(process_details PD);
+    
     friend class Process;
     friend class Process_Creator;
     friend class Scheduler;
     friend class Simulator;
     friend class Schedular_FCFS;
+    friend class Scheduler_RR;
 };
 
 // Class process - which will assign values to the data members and print them
 
 class Process
 {
+    process_details processes_data;
 
 public:
-    process_details processes_data;
     // Constructor For assigning Values
 
     Process(process_details pd)
@@ -145,7 +146,6 @@ public:
         processes_data.turn_around_time = pd.turn_around_time;
         processes_data.waiting_time = pd.waiting_time;
         processes_data.response_time = pd.response_time;
-        // this->Data.burstTime1 = PD.burstTime1;
     }
     // void runOneUnit()
     // {
@@ -164,23 +164,19 @@ public:
     int get_pid() const { return processes_data.pid; }
     int get_arr_time() const { return processes_data.arr_time; }
     int get_brust_time() const { return processes_data.brust_time; }
-    // friend class Scheduler;
-    // friend class Simulator;
-    // friend class FCFSScheduler;
-    // friend class SRTFScheduler;
-    // friend class RRScheduler;
+
     friend class Process_Creator;
     friend class Scheduler;
-    friend class process_details;
     friend class Schedular_FCFS;
     friend class Simulator;
+    friend class Scheduler_RR;
 };
 
 class Process_Creator
 {
 
-    // Array of Processes
     Process **processes;
+    // Array of Processes
 
 public:
     Process_Creator()
@@ -228,14 +224,15 @@ public:
 
     // Scheduler as Friend class for Process_Creator
     // Scheduler can access the private members of this class
+    // friend void check_process_arrival_RR(Process_Creator &PC, int t);
     friend class Process;
     friend class Scheduler;
     friend class Simulator;
     friend class Schedular_FCFS;
+    friend class Scheduler_RR;
 };
 
-
-// it will compare two processes arrival and 
+// it will compare two processes arrival and
 
 class FCFS_Comparator
 {
@@ -259,7 +256,7 @@ public:
     {
         // Constructor of the Class
     }
-    void checkProcessesArrival(Process_Creator &pc, int t)
+    void check_process_arrival_FCFS(Process_Creator &pc, int t)
     {
         for (int i = 0; i < num_of_process; i++)
         {
@@ -283,7 +280,7 @@ public:
     }
     void FCFS(Process_Creator &PC, int t)
     {
-        checkProcessesArrival(PC, t);
+        check_process_arrival_FCFS(PC, t);
         if (ready_queue.empty() == false)
         {
             Process P = ready_queue.top();
@@ -327,6 +324,130 @@ public:
     friend class Schedular;
 };
 
+class RR_Comparator
+{
+public:
+    int operator()(const Process &p1, const Process &p2)
+    {
+        if (p1.get_arr_time() == p2.get_arr_time())
+        {
+            return p1.get_pid() > p2.get_pid();
+        }
+        return p1.get_arr_time() > p2.get_arr_time();
+    }
+};
+
+class Schedular_RR
+{
+    // Min Heap ready Queue
+    priority_queue<Process, vector<Process>, RR_Comparator> ready_queue;
+    priority_queue<Process, vector<Process>, RR_Comparator> ready_queue1;
+    int index, time_quantum;
+
+public:
+    Schedular_RR(Process_Creator &PC, int tq)
+    {
+        index = 0;
+        time_quantum = tq;
+        // Constructor of The Class
+    }
+    // void check_process_arrival_RR(Process_Creator &PC, int t)
+    // {
+    //     for (int i = 0; i < num_of_process; i++)
+    //     {
+    //         if (PC.processes[i]->processes_data.arr_time==t)
+    //         {
+    //             ready_queue.push(Process(PC.processes[i]->processes_data));
+    //             write_update_to_status_file(pc.processes[i]->processes_data, "Arrived", t);
+    //             cout << "t and AT Matched" << pc.processes[i]->processes_data.arr_time << endl;
+    //         }
+    //     }
+    // }
+    // void writeStatusFile(const char status[], int t)
+    // {
+    //     Process P = readyQueue.top();
+    //     writeDataToStatusFile(P.Data, status, t);
+    //     return;
+    // }
+    // void writeProcessesFile(ProcessDetails_t Data)
+    // {
+    //     writeDataToProcessesFile(Data);
+    // }
+    void RR(Process_Creator PC, int t)
+    {
+        // check_process_arrival_RR(PC, t);
+        // if (readyQueue.empty() == true && readyQueue1.empty() == false)
+        // {
+        //     while (readyQueue1.empty() == false)
+        //     {
+        //         Process P = readyQueue1.top();
+        //         readyQueue1.pop();
+        //         readyQueue.push(Process(P.Data));
+        //     }
+        // }
+        // if (readyQueue.empty() == false)
+        // {
+        //     if (counter == timeQuantum)
+        //     {
+        //         counter = 0;
+        //         Process P = readyQueue.top();
+        //         readyQueue.pop();
+        //         readyQueue1.push(Process(P.Data));
+        //         if (readyQueue.empty() == true && readyQueue1.empty() == false)
+        //         {
+        //             while (readyQueue1.empty() == false)
+        //             {
+        //                 Process P = readyQueue1.top();
+        //                 readyQueue1.pop();
+        //                 readyQueue.push(Process(P.Data));
+        //             }
+        //         }
+        //     }
+        //     counter += 1;
+        // Process P = readyQueue.top();
+        // if (P.Data.burstTime != 0)
+        // {
+        //     writeStatusFile("Running", t);
+        //     P.Data.burstTime -= 1;
+        //     if (P.Data.responseTime == -1)
+        //     {
+        //         P.Data.responseTime = t - P.Data.arrivalTime;
+        //     }
+        //     readyQueue.pop();
+        //     readyQueue.push(Process(P.Data));
+        // }
+        // else
+        // {
+        //     writeStatusFile("Exit", t);
+        //     P.Data.completionTime = t;
+        //     P.Data.turnAroundTime = P.Data.completionTime - P.Data.arrivalTime;
+        //     P.Data.waitingTime = P.Data.turnAroundTime - P.Data.burstTime1;
+        //     writeProcessesFile(P.Data);
+        //     readyQueue.pop();
+        //     if (readyQueue.empty() == false)
+        //     {
+        //         P = readyQueue.top();
+        //         writeStatusFile("Running", t);
+        //         P.Data.burstTime -= 1;
+        //         if (P.Data.responseTime == -1)
+        //         {
+        //             P.Data.responseTime = t - P.Data.arrivalTime;
+        //         }
+        //         readyQueue.pop();
+        //         readyQueue.push(Process(P.Data));
+        //     }
+        //     printWarningMessage("\nProcess Completed...\n");
+        // }
+        // P.printProcessDetails();
+        // P.printPidATBT();
+    }
+    friend class Schedular;
+};
+
+class Schedular_CFS
+{
+};
+
 class Schedular
 {
 
@@ -347,16 +468,30 @@ public:
             while (Fcfs.ready_queue.empty() == false)
             {
                 Process P = Fcfs.ready_queue.top();
-                write_update_to_process_file(P.processes_data);
+                // write_update_to_process_file(P.processes_data);
                 Fcfs.ready_queue.pop();
             }
             return;
         }
+        else
+        {
+            // Scheduler_RR Rr(PC, timeQuantum);
+            // for (int i = 1; i <= simulationTime; i++)
+            // {
+            //     cout << "\nIteration is " << i << endl;
+            //     Rr.RR(PC, i);
+            // }
+            // while (Rr.readyQueue.empty() == false)
+            // {
+            //     Process P = Rr.readyQueue.top();
+            //     writeDataToProcessesFile(P.Data);
+            //     Rr.readyQueue.pop();
+            // }
+            // return;
+        }
     }
-    friend class Process;
-    friend class Simulator;
-};
 
+};
 
 class Simulator
 {
@@ -384,13 +519,11 @@ public:
     friend class Scheduler;
 };
 
-
 // File Handling Function
 
 void initilize_header_to_status_file();
 void initilize_header_to_process_file();
 void write_update_to_status_file(process_details PD, const char status[], int t);
-
 
 int main()
 {
@@ -400,9 +533,9 @@ int main()
     int simulation_time;
     cout << "Enter stimulation time (in secs) : ";
     cin >> simulation_time;
-    //Converting stimulation time into mili-Seconds
-    
-    simulation_time = simulation_time*1000;
+    // Converting stimulation time into mili-Seconds
+
+    simulation_time = simulation_time * 1000;
     string salgorithm;
     menu();
     cin >> salgorithm;
@@ -463,7 +596,7 @@ void write_update_to_status_file(process_details PD, const char status[], int t)
     {
         printf("\nError file Updating... status.txt !\n");
     }
-    fprintf(fp, "%010d\t\t\t%010d\t\t\t%s\n", t, PD.pid, status);
+    fprintf(fp, "%017d\t\t\t%010d\t\t\t%s\n", t, PD.pid, status);
     fclose(fp);
 }
 void write_update_to_process_file(process_details PD)

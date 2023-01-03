@@ -123,33 +123,33 @@ public:
 
 // Class process - which will assign values to the data members and print them
 
-// class process
-// {
-//     int pid, arr_time, brust_time, completion_time, turn_around_time, waiting_time, response_time;
+class process
+{
+    int pid, arr_time, brust_time, completion_time, turn_around_time, waiting_time, response_time;
 
-// public:
-//     // Constructor to initilize values to these data members
+public:
+    // Constructor to initilize values to these data members
 
-//     process()
-//     {
-//         pid = 0;
-//         arr_time = 0;
-//         brust_time = 0;
-//         completion_time = 0;
-//         turn_around_time = 0;
-//         waiting_time = 0;
-//         response_time = 0;
-//         completion_time = 0;
-//     }
-//     void print_details();
-//     void response(int t);
-//     void completion(float completion_time);
-//     void IAB_init(int id, int at, int bt);
-//     friend class process_creator;
-//     friend class minHeap;
-//     friend class Queue;
-//     friend class Schedular_FCFS;
-// };
+    process()
+    {
+        pid = 0;
+        arr_time = 0;
+        brust_time = 0;
+        completion_time = 0;
+        turn_around_time = 0;
+        waiting_time = 0;
+        response_time = 0;
+        completion_time = 0;
+    }
+    void print_details();
+    void response(int t);
+    void completion(float completion_time);
+    void IAB_init(int id, int at, int bt);
+    friend class process_creator;
+    friend class minHeap;
+    friend class Queue;
+    friend class Schedular_FCFS;
+};
 
 
 // void process::IAB_init(int id, int at, int bt)
