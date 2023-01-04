@@ -454,9 +454,6 @@ class Schedular
 public:
     void schedule_processes(Process_Creator pc, int simulation_time, int time_quantum, string sAlgorithm)
     {
-        // string fa = "FCFS";
-        // string sa = "RR";
-        // string ta = "CFS";
         if (sAlgorithm == "FCFS")
         {
             Schedular_FCFS Fcfs(pc);

@@ -278,7 +278,7 @@ void minHeap::build_min_heap()
     }
 }
 
-// process minHeap::get_min_ele()
+process minHeap::get_min_ele()
 {
     return a[0];
 }
