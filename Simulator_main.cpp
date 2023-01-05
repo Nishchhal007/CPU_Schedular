@@ -147,20 +147,7 @@ public:
         processes_data.waiting_time = pd.waiting_time;
         processes_data.response_time = pd.response_time;
     }
-    // void runOneUnit()
-    // {
-    //     Data.burstTime = Data.burstTime - 1;
-    //     return;
-    // }
-    // function to display Process Properties
-    // void printProcessDetails()
-    // {
-    //     printProcessInformation(Data);
-    // }
-    // void printPidATBT()
-    // {
-    //     printProcessIdATBT(Data);
-    // }
+    
     int get_pid() const { return processes_data.pid; }
     int get_arr_time() const { return processes_data.arr_time; }
     int get_brust_time() const { return processes_data.brust_time; }

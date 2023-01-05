@@ -6,6 +6,7 @@
 #include <vector>
 
 #define num 8
+#define SIZE 100
 #define MAX_SIZE 999999
 
 using namespace std;
@@ -88,8 +89,10 @@ class process_details
     int pid;
     int arr_time;
     int brust_time;
+    int rem_brust_time;
     int init_brust_time;
     int completion_time;
+    int executed;
     int turn_around_time;
     int waiting_time;
     int response_time;
@@ -122,7 +125,9 @@ public:
         processes_data.arr_time = pd.arr_time;
         processes_data.brust_time = pd.brust_time;
         processes_data.init_brust_time = pd.init_brust_time;
+        processes_data.rem_brust_time = pd.rem_brust_time;
         processes_data.completion_time = pd.completion_time;
+        processes_data.executed = pd.executed;
         processes_data.turn_around_time = pd.turn_around_time;
         processes_data.waiting_time = pd.waiting_time;
         processes_data.response_time = pd.response_time;
@@ -134,8 +139,10 @@ public:
         processes_data.pid = pd.pid;
         processes_data.arr_time = pd.arr_time;
         processes_data.brust_time = pd.brust_time;
+        processes_data.rem_brust_time = pd.rem_brust_time;
         processes_data.init_brust_time = pd.init_brust_time;
         processes_data.completion_time = pd.completion_time;
+        processes_data.executed = pd.executed;
         processes_data.turn_around_time = pd.turn_around_time;
         processes_data.waiting_time = pd.waiting_time;
         processes_data.response_time = pd.response_time;
@@ -151,6 +158,20 @@ public:
     int get_bt()
     {
         return processes_data.init_brust_time;
+    }
+    void completion()
+    {
+        this->processes_data.completion_time = processes_data.completion_time;
+        processes_data.turn_around_time = processes_data.completion_time - processes_data.arr_time;
+        processes_data.waiting_time = processes_data.turn_around_time - processes_data.init_brust_time;
+    }
+
+    void response(int t)
+    {
+        if (processes_data.response_time == -1)
+        {
+            processes_data.response_time = t - processes_data.arr_time;
+        }
     }
     friend void print_process_details(process_details processes_data);
     friend void print_basic_process_info(process_details processes_data);
@@ -318,119 +339,180 @@ public:
 
 class Scheduler_RR
 {
-    // Min Heap ready Queue
-    priority_queue<Process, vector<Process>, Compare> ready_queue;
-    priority_queue<Process, vector<Process>, Compare> running_queue;
-    int index, time_quantum;
+    int queue[SIZE] = {0};    // running queue for the simulator .stores the process ids.
+    int bucket[SIZE] = {0};   // to store the processes id which are ready to get executed at the given point of time
+    int K = -1;               // index to indicate the top element of bucket .just like top in queue.
+    int marker;               // index to the top element in queue
+    int dqt = -1;             // used to store the time the runnng process started its execution
+    int min_burst = INT_MAX;  // to store the minimum burst time required in STRF nad round robin
+    int min_burst_index = -1; // to store the index of minimum burst time process present in the bucket
 
 public:
-public:
-    Scheduler_RR(Process_Creator &PC, int tq)
+    Process_Creator processes;
+    Scheduler_RR(Process_Creator &PC)
     {
-        // Constructor of The Class
+        marker = -1;
+    }
+    bool enqueue(int pid, int t)
+    {
+        if (marker == SIZE - 1)
+        {
+            return false;
+        }
+        else
+        {
+            // cout << "enqueued" << endl;
+            marker++;
+            queue[marker] = pid;
+            if (marker == 0)
+            {
+                dqt = t;
+                write_update_to_status_file()
+                out.open("status.txt", ios_base::app);
+                out << setw(15) << t;
+                out << setw(15) << processes.arr[queue[0]].pId;
+                out << setw(15) << "arrived";
+                out << endl;
+                out.close();
+                processes.arr[queue[0]].response(t);
+            }
+            return true;
+        }
+    }
 
-        index = 0;
-        time_quantum = tq;
-    }
-    void check_arrival_rr(Process_Creator &PC, int t)
+    bool dequeue(int t)
     {
-        for (int i = 0; i < num; i++)
+        if (marker == -1)
+            return false;
+        else
         {
-            if (PC.processes[i]->processes_data.arr_time == t)
-            {
-                ready_queue.push(Process(PC.processes[i]->processes_data));
-                write_update_to_status_file(PC.processes[i]->processes_data, "Arrived", t);
-                // cout << "t and AT Matched" << PC.processes[i]->processes_data.arr_time << endl;
-            }
-        }
-    }
-    void write_to_status_file(const char status[], int t)
-    {
-        Process P = running_queue.top();
-        write_update_to_status_file(P.processes_data, status, t);
-        return;
-    }
-    void write_to_processes_file(process_details pd)
-    {
-        write_update_to_process_file(pd);
-    }
-    // readyQueue1 - ready_queue
-    // readyQueue - running_queue
-    void Round_Robin(Process_Creator PC, int t)
-    {
-        check_arrival_rr(PC, t);
-        if (running_queue.empty() == true && ready_queue.empty() == false)
-        {
-            while (ready_queue.empty() == false)
-            {
-                Process P = ready_queue.top();
-                ready_queue.pop();
-                running_queue.push(Process(P.processes_data));
-            }
-        }
-        if (running_queue.empty() == false)
-        {
-            if (index == time_quantum)
-            {
-                index = 0;
-                Process P = running_queue.top();
-                running_queue.pop();
-                ready_queue.push(Process(P.processes_data));
-                if (running_queue.empty() == true && ready_queue.empty() == false)
-                {
-                    while (ready_queue.empty() == false)
-                    {
-                        Process P = ready_queue.top();
-                        ready_queue.pop();
-                        running_queue.push(Process(P.processes_data));
-                    }
-                }
-            }
-            index = index + 1;
-            Process P = running_queue.top();
-            if (P.processes_data.brust_time != 0)
-            {
-                write_to_status_file("Running", t);
-                P.processes_data.brust_time -= 1;
-                if (P.processes_data.response_time == -1)
-                {
-                    P.processes_data.response_time = t - P.processes_data.arr_time;
-                }
-                running_queue.pop();
-                running_queue.push(Process(P.processes_data));
-            }
-            else
-            {
-                write_to_status_file("Exit", t);
-                P.processes_data.completion_time = t;
-                P.processes_data.turn_around_time = P.processes_data.completion_time - P.processes_data.arr_time;
-                P.processes_data.waiting_time = P.processes_data.turn_around_time - P.processes_data.init_brust_time;
-                write_to_processes_file(P.processes_data);
-                running_queue.pop();
-                if (running_queue.empty() == false)
-                {
-                    P = running_queue.top();
-                    write_to_status_file("Running", t);
-                    P.processes_data.brust_time -= 1;
-                    if (P.processes_data.response_time == -1)
-                    {
-                        P.processes_data.response_time = t - P.processes_data.arr_time;
-                    }
-                    running_queue.pop();
-                    running_queue.push(Process(P.processes_data));
-                }
-            }
-        }
-    }
-    friend class Scheduler;
-};
+            cout << "dequeued" << endl;
 
-class Scheduler_CFS
-{
-public:
-    Scheduler_CFS()
+            int p_executed = queue[0];
+            processes.arr[queue[0]].completion(t);
+            dqt = t;
+            for (int i = 0; i < marker; i++)
+                queue[i] = queue[i + 1];
+            queue[marker] = 0;
+            marker--;
+            out.open("status.txt", ios_base::app);
+            out << setw(15) << t;
+            out << setw(15) << processes.arr[p_executed].pId;
+            out << setw(15) << "exit";
+            out << endl;
+            if (marker != -1)
+            {
+                out << setw(15) << t;
+                out << setw(15) << processes.arr[queue[0]].pId;
+                out << setw(15) << "arrived";
+                out << endl;
+                out.close();
+                processes.arr[queue[0]].response(t);
+            }
+            processes.arr[p_executed].executed = -1;
+            return true;
+        }
+    }
+
+    int context_switch(int t, int time_quantam)
     {
-        
+        processes.arr[queue[0]].remaining_time = processes.arr[queue[0]].remaining_time - time_quantam;
+        int id = processes.arr[queue[0]].pId;
+
+        out.open("status.txt", ios_base::app);
+        out << setw(15) << t;
+        out << setw(15) << id;
+        out << setw(15) << "context switch";
+        out << endl;
+        out.close();
+
+        for (int i = 0; i < marker; i++)
+            queue[i] = queue[i + 1];
+
+        dqt = t;
+        queue[marker] = 0;
+        marker--;
+        if (marker != -1)
+        {
+            out.open("status.txt", ios_base::app);
+            out << setw(15) << t;
+            out << setw(15) << processes.arr[queue[0]].pId;
+            out << setw(15) << "arrived";
+            out << endl;
+            out.close();
+        }
+        processes.arr[queue[0]].response(t);
+        return id;
+    }
+
+    int round_robin(int t, int time_quantam)
+    {
+        cout << t << " millisec" << endl;
+        int new_process = 0;
+        for (int i = 0; i < 100; i++)
+        {
+            if (processes.arr[i].executed != -1 && processes.arr[i].arrival_time == t)
+            {
+                new_process = 1;
+                K++;
+                bucket[K] = processes.arr[i].pId;
+            }
+        }
+        if (new_process == 1)
+        {
+            for (int i = 0; i <= K; i++)
+            {
+                if (processes.arr[bucket[i]].remaining_time < min_burst)
+                {
+                    min_burst = processes.arr[bucket[i]].burst_time;
+                    min_burst_index = i;
+                }
+            }
+        }
+
+        if (marker != -1 && t - dqt == processes.arr[queue[0]].remaining_time)
+        {
+            if (dequeue(t))
+            {
+            }
+        }
+        else if (marker != -1 && t - dqt == time_quantam)
+        {
+            K++;
+            bucket[K] = context_switch(t, time_quantam);
+        }
+        else
+        {
+            if (marker != -1)
+            {
+                out.open("status.txt", ios_base::app);
+                out << setw(15) << t;
+                out << setw(15) << processes.arr[queue[0]].pId;
+                out << setw(15) << "running";
+                out << endl;
+                out.close();
+            }
+        }
+
+        if (K != -1 && enqueue(bucket[min_burst_index], t))
+        {
+            for (int i = min_burst_index; i < K; i++)
+                bucket[i] = bucket[i + 1];
+            bucket[K] = 0;
+            K--;
+            min_burst_index = -1;
+            min_burst = INT_MAX;
+            for (int i = 0; i <= K; i++)
+            {
+                if (processes.arr[bucket[i]].remaining_time < min_burst)
+                {
+                    min_burst = processes.arr[bucket[i]].burst_time;
+                    min_burst_index = i;
+                }
+            }
+        }
+
+        return 0;
     }
 };
 
@@ -462,29 +544,7 @@ public:
         }
         else if (choice == 2)
         {
-            Scheduler_RR rr(PC, time_quantum);
-            for (int i = 1; i <= simulation_time; i++)
-            {
-                rr.Round_Robin(PC, i);
-            }
-            while (rr.ready_queue.empty() == false)
-            {
-                Process P = rr.ready_queue.top();
-                write_update_to_process_file(P.processes_data);
-                rr.ready_queue.pop();
-            }
-            cout << "\nRound Robin Scheduling Completed.\n"
-                 << endl;
-            cout << "Check process.txt and status.txt for output" << endl;
-            return;
-        }
-
-        else
-        {
-            Scheduler_CFS cfs();
-            for (int i = 1; i <= simulation_time; i++)
-            {
-            }
+            Scheduler_RR round_robin(PC);
         }
     }
 };
