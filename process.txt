@@ -1,11 +1,11 @@
 Process Id		Arrival Time		Burst Time		Completion Time		Turn Around Time		Waiting Time		Response Time
-        0		       2 ms		      2 ms		         20 ms		              18 ms		          16 ms		            0 ms
-        1		      15 ms		      6 ms		         43 ms		              28 ms		          22 ms		           11 ms
-        2		      10 ms		      3 ms		         23 ms		              13 ms		          10 ms		           10 ms
-        3		      19 ms		      1 ms		         37 ms		              18 ms		          17 ms		           17 ms
-        4		       3 ms		      7 ms		          0 ms		              -1 ms		          -1 ms		            6 ms
-        5		       6 ms		      6 ms		         33 ms		              27 ms		          21 ms		            6 ms
-        6		       2 ms		      7 ms		         40 ms		              38 ms		          31 ms		            4 ms
-        7		       2 ms		      2 ms		          6 ms		               4 ms		           2 ms		            2 ms
-        8		      16 ms		      1 ms		         30 ms		              14 ms		          13 ms		           13 ms
-        9		       8 ms		      5 ms		         39 ms		              31 ms		          26 ms		            7 ms
+        0		       2 ms		      2 ms		          4 ms		               2 ms		           0 ms		            0 ms
+        1		      15 ms		      6 ms		         40 ms		              25 ms		          19 ms		           19 ms
+        2		      10 ms		      3 ms		         34 ms		              24 ms		          21 ms		           21 ms
+        3		      19 ms		      1 ms		         42 ms		              23 ms		          22 ms		           22 ms
+        4		       3 ms		      7 ms		         20 ms		              17 ms		          10 ms		           10 ms
+        5		       6 ms		      6 ms		         26 ms		              20 ms		          14 ms		           14 ms
+        6		       2 ms		      7 ms		         11 ms		               9 ms		           2 ms		            2 ms
+        7		       2 ms		      2 ms		         13 ms		              11 ms		           9 ms		            9 ms
+        8		      16 ms		      1 ms		         41 ms		              25 ms		          24 ms		           24 ms
+        9		       8 ms		      5 ms		         31 ms		              23 ms		          18 ms		           18 ms

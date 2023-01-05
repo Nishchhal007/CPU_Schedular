@@ -1,434 +1,453 @@
-// #include<bits/stdc++. h>
+#include <bits/stdc++.h>
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
-#include <ctime>
-#include <vector>
-#include <algorithm>
-#include <utility>
+#include <iostream>
 #include <fstream>
+#include <iomanip>
 
+#define MAX_SIZE 9999999
+#define n 10
 
-
+void starter();
+void menu();
 
 using namespace std;
-
-#define MAX_SIZE 999999
-
-#define N 10
-
-// Class Queue and its Functions
-
-class Queue
-{
-    int *arr;
-    int front;
-    int back;
-    int size;
-
-public:
-    Queue()
-    {
-        arr = new int[MAX_SIZE];
-        front = 0;
-        back = -1;
-        size = 0;
-    };
-    void enqueue(int x);
-    void dequeue();
-    int peak();
-    int back_ele();
-    int Size();
-    bool isEmpty();
-};
-
-void Queue ::enqueue(int x)
-{
-    if (size == MAX_SIZE)
-    {
-        cout << "Error: Queue is full" << endl;
-        return;
-    }
-    back = (back + 1) % MAX_SIZE;
-    arr[back] = x;
-    size++;
-}
-void Queue ::dequeue()
-{
-    if (size == 0)
-    {
-        cout << "Error: Queue is empty" << endl;
-        return;
-    }
-    front = (front + 1) % MAX_SIZE;
-    size--;
-}
-int Queue ::peak()
-{
-
-    if (size == 0)
-    {
-        cout << "Error: Queue is empty" << endl;
-        return -1;
-    }
-    return arr[front];
-}
-
-int Queue ::back_ele()
-{
-    if (size == 0)
-    {
-        cout << "Error: Queue is empty" << endl;
-        return -1;
-    }
-    return arr[back];
-}
-int Queue::Size()
-{
-    return size;
-}
-
-bool Queue ::isEmpty()
-{
-    if (front == -1 || front > back)
-    {
-        return true;
-    }
-    return false;
-}
 
 // Starter menu Functions
 
 void starter();
 void menu();
 
-// File Handling Function
-
-void initilize_header_to_status_file();
-void initilize_header_to_process_file();
-void writeDataToStatusFile(int pid, const char status[], int t);
-
-class process_details
+class Process
 {
-
     int pid;
     int arr_time;
     int brust_time;
+    int init_brust_time;
     int completion_time;
+    int rem_brust_time;
     int turn_around_time;
     int waiting_time;
     int response_time;
-    int completion_time;
+    int executed;
+    int vRuntime;
+    int priority;
 
 public:
-    friend class process;
-    friend class process_creator;
-};
-
-// Class process - which will assign values to the data members and print them
-
-class process
-{
-    int pid, arr_time, brust_time, completion_time, turn_around_time, waiting_time, response_time;
-
-public:
-    // Constructor to initilize values to these data members
-
-    process()
+    Process()
     {
+        executed = 0;
         pid = 0;
         arr_time = 0;
+        turn_around_time = -1;
         brust_time = 0;
-        completion_time = 0;
-        turn_around_time = 0;
-        waiting_time = 0;
-        response_time = 0;
+        rem_brust_time = 0; // needed to do round robin as in that burst_time will change so remaining burst time needed
+        response_time = -1;
+        waiting_time = -1;
         completion_time = 0;
     }
-    void print_details();
+    void print_basic_process_info(int pid, int at, int bt)
+    {
+        cout << "Process ID : " << pid
+             << "\tArrival Time : " << at
+             << "\tBrust Time : " << bt << endl;
+    }
+    void Assign(int id, int at, int bt);
+    void completion(int);
     void response(int t);
-    void completion(float completion_time);
-    void IAB_init(int id, int at, int bt);
-    friend class process_creator;
-    friend class minHeap;
-    friend class Queue;
-    friend class Schedular_FCFS;
+    friend void update_process_file(Process pd);
+    friend class Process_Creator;
+    friend class Scheduler;
 };
 
-
-// void process::IAB_init(int id, int at, int bt)
+void Process::Assign(int id, int at, int bt)
 {
-    pid = id;
     arr_time = at;
     brust_time = bt;
+    pid = id;
+    rem_brust_time = brust_time;
 }
-// void process::completion(float completion_time = 0)
+
+void Process::completion(int completion_time = 0)
 {
     this->completion_time = completion_time;
     turn_around_time = completion_time - arr_time;
     waiting_time = turn_around_time - brust_time;
 }
 
-// void process::response(int t)
+void Process::response(int t)
 {
     if (response_time == -1)
+    {
         response_time = t - arr_time;
-}
-// void process::print_details()
-// {
-//     cout << "\n";
-//     cout << "Process ID : " << pid << endl;
-//     cout << "Arrival Time : " << arr_time << endl;
-//     cout << "Brust Time : " << brust_time << endl;
-//     cout << "Completion Time : " << completion_time << endl;
-//     cout << "Turn Around Time : " << turn_around_time << endl;
-//     cout << "Waiting Time : " << waiting_time << endl;
-//     cout << "Response Time : " << response_time << endl;
-//     cout << "\n";
-// }
-
-// Class process_creator - which will assign a random arrival time and burst time to each process.
-
-class process_creator
-{
-    int at;
-    int bt;
-    // process *a = new process[N];
-
-public:
-    // Function for Assigning Random Time for arrival_time,Brust_time
-    void Assign();
-    friend class Schedular_FCFS;
-};
-
-void process_creator ::Assign()
-{
-    for (int i = 0; i < N; i++)
-    {
-        at = rand() % 10;
-        bt = 1 + rand() % 10;
-        // a[i].IAB_init(i, at, bt);
-    }
-    for (int i = 0; i < N; i++)
-    {
-        // a[i].print_details();
     }
 }
 
-// Min Heap
-
-class minHeap
+class Process_Creator
 {
 private:
-    process *a = new process[10];
+    int random_arrival_time;
+    int random_brust_time;
 
-    int left(int i)
-    {
-        return 2 * i + 1;
-    }
-    int right(int i)
-    {
-        return 2 * i + 2;
-    }
-    int parent(int i)
-    {
-        return (i - 1) / 2;
-    }
+public:
+    // Allocates Memory for the Array
 
-    void min_heapify(int i)
-    {
-        int l = left(i);
-        int r = right(i);
-        int smallest = i;
+    Process *arr = new Process[n];
 
-        if (l < sizeof(a) && a[l].arr_time < a[smallest].arr_time)
+    Process_Creator()
+    {
+        cout << "\n\t\tProcesses Info\t\t\n"
+             << endl;
+
+        for (int i = 0; i < n; i++)
         {
-            smallest = l;
+            random_arrival_time = rand() % 20 + 1;
+            random_brust_time = rand() % 7 + 1;
+            arr[i].Assign(i, random_arrival_time, random_brust_time);
+            arr[i].print_basic_process_info(i, random_arrival_time, random_brust_time);
+        }
+        // cout << "Processes initialised with random Arrival and Brust Time" << endl;
+    }
+};
+
+// File Handling Functions.
+
+void init_status();
+void init_process();
+void update_status_file(int pid, const char status[], int t);
+void update_process_file(Process PD);
+
+class Scheduler
+{
+private:
+    int ready_queue[n] = {0};
+    int queue[n] = {0};
+    int ready_queue_top = -1;
+    int queue_front_index;
+    int init_time = -1;
+    int min_burst_time = MAX_SIZE;
+    int min_burst_index = -1;
+
+public:
+    Process_Creator processes;
+    Scheduler()
+    {
+
+        queue_front_index = -1;
+    }
+    bool enqueue(int pid, int t)
+    {
+        if (queue_front_index == n - 1)
+        {
+            return false;
         }
         else
         {
-            smallest = i;
-        }
-
-        if (r < sizeof(a) && a[r].arr_time < a[smallest].arr_time)
-        {
-            smallest = r;
-        }
-
-        if (smallest != i)
-        {
-            swap(a[smallest], a[i]);
-            min_heapify(smallest);
-        }
-    }
-
-public:
-    minHeap(process *arr)
-    {
-        a = arr;
-        build_min_heap();
-    }
-
-    void build_min_heap();
-    process get_min_ele();
-    void pop();
-};
-
-void minHeap::build_min_heap()
-{
-    for (int i = (sizeof(a) / 2) - 1; i >= 0; i--)
-    {
-        min_heapify(i);
-    }
-}
-
-process minHeap::get_min_ele()
-{
-    return a[0];
-}
-
-void minHeap::pop()
-{
-    int x = sizeof(a);
-    a[0] = a[x - 1];
-    x = x - 1;
-    min_heapify(0);
-}
-
-// class Schedular - This will implement the scheduling algorithms.
-
-class Schedular
-{
-    // process ready_queue[MAX_SIZE];
-
-public:
-    void schedule_processes(process_creator &PC, int simulation_time, int time_quantum, string sAlgorithm)
-    {
-        // string fa = "FCFS";
-        // string sa = "RR";
-        // string ta = "CFS";
-        if (sAlgorithm == "FCFS")
-        {
-            Schedular_FCFS Fcfs();
-            // for (int i = 1; i <= simulationTime; i++)
-            // {
-            //     cout << "\nIteration is " << i << endl;
-            //     Fcfs.FCFS(PC, i);
-            // }
-            // while (Fcfs.readyQueue.empty() == false)
-            // {
-            //     // Process P = Fcfs.readyQueue.top();
-            //     // writeDataToProcessesFile(P.Data);
-            //     Fcfs.readyQueue.pop();
-            // }
-            // return;
-        }
-    }
-};
-
-// Class for implementation of FCFS Schedular
-
-class Schedular_FCFS
-{
-    Queue ready_queue;
-
-public:
-    void check_process_arrival(process_creator &PC, int t)
-    {
-        for (int i = 0; i < N; i++)
-        {
-            if (PC.a[i].arr_time == t)
+            // cout << "enqueued" << endl;
+            queue_front_index++;
+            queue[queue_front_index] = pid;
+            if (queue_front_index == 0)
             {
-                // ready_queue.enqueue(PC.a[i]);
-                writeDataToStatusFile(PC.a[i].pid, "Arrived", t);
-                cout << "t and AT Matched" << PC.a[i].arr_time << endl;
+                init_time = t;
+                update_status_file(processes.arr[queue[0]].pid, "arrived", t);
+                processes.arr[queue[0]].response(t);
+            }
+            return true;
+        }
+    }
+
+    bool dequeue(int t)
+    {
+        if (queue_front_index == -1)
+        {
+            return false;
+        }
+        else
+        {
+            // cout << "dequeued" << endl;
+
+            int p_executed = queue[0];
+            processes.arr[queue[0]].completion(t);
+            init_time = t;
+            for (int i = 0; i < queue_front_index; i++)
+            {
+
+                queue[i] = queue[i + 1];
+            }
+            queue[queue_front_index] = 0;
+            queue_front_index--;
+            update_status_file(processes.arr[p_executed].pid, "exit", t);
+
+            if (queue_front_index != -1)
+            {
+
+                update_status_file(processes.arr[queue[0]].pid, "arrived", t);
+                processes.arr[queue[0]].response(t);
+            }
+            processes.arr[p_executed].executed = -1;
+            return true;
+        }
+    }
+
+    void FCFS(int t)
+    {
+        // cout << t << " millisec" << endl;
+        for (int i = 0; i < n; i++)
+        {
+            if (processes.arr[i].executed != -1 && processes.arr[i].arr_time == t)
+            {
+                ready_queue_top++;
+                ready_queue[ready_queue_top] = processes.arr[i].pid;
             }
         }
+
+        if (queue_front_index != -1 && t - init_time == processes.arr[queue[0]].brust_time)
+        {
+            if (dequeue(t) == 0)
+            {
+            }
+        }
+        else if (queue_front_index != -1)
+        {
+            update_status_file(processes.arr[queue[0]].pid, "running", t);
+        }
+        if (ready_queue_top != -1 && enqueue(ready_queue[0], t))
+        {
+            for (int j = 0; j < ready_queue_top; j++)
+            {
+                ready_queue[j] = ready_queue[j + 1];
+            }
+            ready_queue[ready_queue_top] = 0;
+            ready_queue_top--;
+        }
     }
 
-    void FCFS(process_creator &PC, int t)
+    int context_switch(int t, int time_quantam)
     {
-        check_process_arrival(PC, t);
-        if (ready_queue.isEmpty() == false)
+        processes.arr[queue[0]].rem_brust_time = processes.arr[queue[0]].rem_brust_time - time_quantam;
+        int id = processes.arr[queue[0]].pid;
+        update_status_file(id, "switch", t);
+
+        for (int i = 0; i < queue_front_index; i++)
         {
-            // process P = ready_queue.peak();
-            //     if (P.Data.burstTime != 0)
-            //     {
-            //         writeStatusFile("Running", t);
-            //         P.Data.burstTime -= 1;
-            //         if (P.Data.responseTime == -1)
-            //         {
-            //             P.Data.responseTime = t - P.Data.arrivalTime;
-            //         }
-            //         ready_queue.pop();
-            //         ready_queue.push(Process(P.Data));
-            //     }
+
+            queue[i] = queue[i + 1];
         }
+
+        init_time = t;
+        queue[queue_front_index] = 0;
+        queue_front_index--;
+        if (queue_front_index != -1)
+        {
+            update_status_file(processes.arr[queue[0]].pid, "arrived", t);
+        }
+        processes.arr[queue[0]].response(t);
+        return id;
+    }
+
+    int round_robin(int t, int time_quantam)
+    {
+
+        // cout << t << " In algo Round_robin is working" << endl;
+        int new_process = 0;
+        for (int i = 0; i < n; i++)
+        {
+            if (processes.arr[i].executed != -1 && processes.arr[i].arr_time == t)
+            {
+                new_process = 1;
+                ready_queue_top++;
+                ready_queue[ready_queue_top] = processes.arr[i].pid;
+            }
+        }
+        if (new_process == 1)
+        {
+            for (int i = 0; i <= ready_queue_top; i++)
+            {
+                if (processes.arr[ready_queue[i]].rem_brust_time < min_burst_time)
+                {
+                    min_burst_time = processes.arr[ready_queue[i]].brust_time;
+                    min_burst_index = i;
+                }
+            }
+        }
+
+        if (queue_front_index != -1 && t - init_time == processes.arr[queue[0]].rem_brust_time)
+        {
+            if (dequeue(t))
+            {
+            }
+        }
+        else if (queue_front_index != -1 && t - init_time == time_quantam)
+        {
+            ready_queue_top++;
+            ready_queue[ready_queue_top] = context_switch(t, time_quantam);
+        }
+        else
+        {
+            if (queue_front_index != -1)
+            {
+                update_status_file(processes.arr[queue[0]].pid, "running", t);
+            }
+        }
+
+        if (ready_queue_top != -1 && enqueue(ready_queue[min_burst_index], t))
+        {
+            for (int i = min_burst_index; i < ready_queue_top; i++)
+                ready_queue[i] = ready_queue[i + 1];
+            ready_queue[ready_queue_top] = 0;
+            ready_queue_top--;
+            min_burst_index = -1;
+            min_burst_time = INT_MAX;
+            for (int i = 0; i <= ready_queue_top; i++)
+            {
+                if (processes.arr[ready_queue[i]].rem_brust_time < min_burst_time)
+                {
+                    min_burst_time = processes.arr[ready_queue[i]].brust_time;
+                    min_burst_index = i;
+                }
+            }
+        }
+
+        return 0;
+    }
+    void cfs()
+    {
     }
 };
 
 class Simulator
 {
-private:
-    int simulation_time;
-    int time_quantum;
-    int num_of_processes;
-    string sAlgorithm;
-
 public:
-    Simulator(int sT, int tQ, string sA)
+    Scheduler S;
+    void simulation(int simulation_time, int choice, int time_quantum = 0)
     {
-        simulation_time = sT;
-        time_quantum = tQ;
-        num_of_processes = N;
-        sAlgorithm = sA;
+
+        for (int t = 1; t <= simulation_time; t++)
+        {
+            if (choice == 1)
+            {
+                if (t == 1)
+                {
+                    cout << "\nFCFS Scheduling Started.\n"
+                         << endl;
+                }
+
+                S.FCFS(t);
+                if (t == simulation_time - 1)
+                {
+                    cout << "\nFCFS Scheduling Completed.\n"
+                         << endl;
+                }
+            }
+            else if (choice == 2)
+            {
+                if (t == 1)
+                {
+                    cout << "\nRound robin Scheduling Started.\n"
+                         << endl;
+                }
+                S.round_robin(t, time_quantum);
+                if (t == simulation_time - 1)
+                {
+                    cout << "\nRound Robin Scheduling Completed.\n"
+                         << endl;
+                }
+            }
+            else if (choice == 3)
+            {
+                if (t == 1)
+                {
+                    cout << "\nCFS Scheduling Started.\n"
+                         << endl;
+                }
+                S.cfs();
+                if (t == simulation_time - 1)
+                {
+                    cout << "\nCFS Scheduling Completed.\n"
+                         << endl;
+                }
+            }
+            else
+            {
+                cout << "Invalid Input ! Try Again" << endl;
+                exit(1);
+            }
+        }
+
+        for (int i = 0; i < n; i++)
+        {
+            update_process_file(S.processes.arr[i]);
+        }
     }
-    void init_simulation()
-    {
-        // process_creator PC(num_of_processes);
-        process_creator pc;
-        pc.Assign();
-        Schedular s;
-        s.schedule_processes(pc, simulation_time, time_quantum, sAlgorithm);
-    }
-    friend class Scheduler;
 };
 
 int main()
 {
     starter();
 
-    int time_quantum;
     int simulation_time;
-    cout << "Enter stimulation time (in secs) : ";
+
+    int time_quantum;
+
+    cout << "Enter stimulation time (in milli-seconds) : ";
     cin >> simulation_time;
-    string salgorithm;
+
+    // Converting stimulation time into mili-Seconds
+
+    // simulation_time = simulation_time * 1000;
+
     menu();
-    cin >> salgorithm;
+
+    int choice;
+    cin >> choice;
+
+    if (!(choice == 1 || choice == 2 || choice == 3))
+    {
+        cout << "Invalid Input!" << endl;
+        exit(1);
+    }
 
     // For RR
 
-    if (salgorithm.compare("RR") == 0)
+    if (choice == 2)
     {
         cout << "Enter time Quantum (in ms) : ";
         cin >> time_quantum;
     }
+    // Writing Headers in status.txt and process.txt
 
-    // Initilizing Headers in status.txt and process.txt
-
-    initilize_header_to_status_file();
-    initilize_header_to_process_file();
+    init_status();
+    init_process();
 
     // Start Simulation
 
-    Simulator Simulation(simulation_time, time_quantum, salgorithm);
-    Simulation.init_simulation();
-
+    Simulator init;
+    init.simulation(simulation_time, choice, time_quantum);
     return 0;
 }
 
-// File handling Functions
+void menu()
+{
+    cout << "\n**********************************************************\n"
+         << endl;
+    cout << "Enter 1 for First Come First Serve (FCFS) " << endl;
+    cout << "Enter 2 for Round Robin Scheduling(RR) " << endl;
+    cout << "Enter 3 for Completely Fair Scheduler (CFS) " << endl;
+    cout << "\n**********************************************************\n"
+         << endl;
+}
 
-void initilize_header_to_status_file()
+void starter()
+{
+    cout << "\n\n\t***************************************************************\n"
+         << endl;
+    cout << "\t\t\t Welcome to my CPU Schedular " << endl;
+    cout << "\n\t***************************************************************\n"
+         << endl;
+}
+
+void init_status()
 {
     FILE *fp;
     fp = fopen("status.txt", "w");
@@ -441,7 +460,7 @@ void initilize_header_to_status_file()
     fclose(fp);
 }
 
-void initilize_header_to_process_file()
+void init_process()
 {
     FILE *fp;
     fp = fopen("process.txt", "w");
@@ -454,35 +473,26 @@ void initilize_header_to_process_file()
     fclose(fp);
 }
 
-void writeDataToStatusFile(int pid, const char status[], int t)
+void update_status_file(int pid, const char status[], int t)
 {
     FILE *fp;
-    fp = fopen("./Files/status.txt", "a");
+    fp = fopen("status.txt", "a");
     if (fp == NULL)
     {
-        printf("Error ! while updating Status File");
-        exit(1);
+        printf("\nError file Updating... status.txt !\n");
     }
-    fprintf(fp, "%013d\t\t%010d\t\t%s\n", t, pid, status);
+    fprintf(fp, "%12dms\t\t\t%9d\t\t\t%11s\n", t, pid, status);
     fclose(fp);
 }
 
-void menu()
+void update_process_file(Process PD)
 {
-    cout << "\n**********************************************************\n"
-         << endl;
-    cout << "Enter 'FCFS' for First Come First Serve (FCFS) " << endl;
-    cout << "Enter 'RR' for Round Robin Scheduling " << endl;
-    cout << "Enter 'CFS' for Completely Fair Scheduler (CFS) " << endl;
-    cout << "\n**********************************************************\n"
-         << endl;
-}
-
-void starter()
-{
-    cout << "\n\n\t***************************************************************\n"
-         << endl;
-    cout << "\t\t\t Welcome to my CPU Schedular " << endl;
-    cout << "\n\t***************************************************************\n"
-         << endl;
+    FILE *fp;
+    fp = fopen("process.txt", "a");
+    if (fp == NULL)
+    {
+        printf("\nError file Updating... process.txt !\n");
+    }
+    fprintf(fp, "%9d\t\t%8d ms\t\t%7d ms\t\t%11d ms\t\t%16d ms\t\t%12d ms\t\t%13d ms\n", PD.pid, PD.arr_time, PD.brust_time, PD.completion_time, PD.turn_around_time, PD.waiting_time, PD.response_time);
+    fclose(fp);
 }
